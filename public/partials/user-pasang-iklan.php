@@ -126,7 +126,20 @@ $idpost     = isset($_GET['id'])?$_GET['id']:'';
         ],
     ];
 
-    if($action=='edit' && $idpost){
+    if ($action == 'edit' && $idpost) {
+        $post = get_post($idpost);
+
+        if (!$post) {
+            echo '<div class="alert alert-danger mt-3">Iklan tidak ditemukan.</div>';
+            return;
+        }
+
+        // Cek apakah user saat ini adalah pemilik post
+        if ((int) $post->post_author !== get_current_user_id()) {
+            echo '<div class="alert alert-danger mt-3">Anda tidak memiliki akses untuk ubah iklan ini.</div>';
+            return;
+        }
+
         $args['ID'] = $idpost;
     }
 
@@ -141,3 +154,4 @@ $idpost     = isset($_GET['id'])?$_GET['id']:'';
             echo $form->formPost($args,$action,$metakey);
         echo '</div>';
     echo '</div>';
+
