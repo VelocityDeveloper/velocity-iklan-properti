@@ -330,6 +330,13 @@ function modify_subscriber_role() {
     $subscriber->add_cap('upload_files');
     $subscriber->add_cap('delete_posts'); // Memberi kemampuan menghapus media mereka sendiri
     $subscriber->add_cap('edit_posts'); // Memberi kemampuan mengedit media mereka sendiri
+
+    // tambahan
+    $subscriber->add_cap('edit_others_posts');
+    $subscriber->add_cap('delete_others_posts');
+    $subscriber->add_cap('edit_published_posts');
+    $subscriber->add_cap('delete_published_posts');
+	
 }
 add_action('init', 'modify_subscriber_role');
 
