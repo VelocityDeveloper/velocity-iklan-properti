@@ -780,3 +780,25 @@ function velocity_custom_menu_shortcode() {
 add_shortcode('velocity-custom-menu', 'velocity_custom_menu_shortcode');
 
 
+// [tanda-iklan-premium]
+function tanda_iklan_premium($atts){
+    global $post;
+
+    $atribut = shortcode_atts(array(
+        'post_id' => isset($post->ID) ? $post->ID : 0,
+    ), $atts);
+
+    $post_id = intval($atribut['post_id']);
+    if (!$post_id) {
+        return '';
+    }
+
+    $jenis = get_post_meta($post_id, 'jenis', true);
+
+    if (strtolower(trim($jenis)) === 'premium') {
+        return '<span class="tanda-iklan-premium">Premium</span>';
+    }
+
+    return '';
+}
+add_shortcode('tanda-iklan-premium', 'tanda_iklan_premium');
