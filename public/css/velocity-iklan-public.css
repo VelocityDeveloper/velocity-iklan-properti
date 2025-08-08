@@ -68,6 +68,29 @@
 .iklan-biasa {
     border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
 }
+.tanda-iklan-premium {
+    position: relative;
+    display: inline-block;
+    background-color: #ffb436;
+    color: #fff;
+    padding: 4px 7px 4px 16px;
+    line-height: 1;
+    font-size: 13px;
+    margin-left: 15px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+.tanda-iklan-premium::before {
+    content: '';
+    background-image: url('../img/star.png');
+    background-repeat: no-repeat;
+    background-size: 100% auto;
+    width: 25px;
+    height: 25px;
+    position: absolute;
+    top: -2px;
+    left: -15px;
+}
 .iklan-premium {
     border: 1px solid #F4B616;
     background-color: #fff5dc;
