@@ -270,58 +270,103 @@ add_shortcode('iklan_galeri_foto', function($atts) {
 
 // [velocity-iklan-penjual]
 add_shortcode('velocity-iklan-penjual', function($atts) {
+    // fallback aman untuk global post
     global $post;
-    $atribut = shortcode_atts( array(
-        'post_id'   => $post->ID,
-        'author_id'   => '',
-    ), $atts );
-	$post_id = $atribut['post_id'];
-	$author = $atribut['author_id'];
-    $author_id = get_post_field( 'post_author', $post_id );
-    if($author) {
-        $author_id = $author;
+
+    $atribut = shortcode_atts([
+        'post_id'   => 0,
+        'author_id' => '',
+    ], $atts);
+
+    // 1) Tentukan post_id: gunakan atribut, lalu global $post bila ada
+    $post_id = intval($atribut['post_id']);
+    if (!$post_id && isset($post) && is_object($post) && !empty($post->ID)) {
+        $post_id = intval($post->ID);
     }
-    $author_name = get_the_author_meta( 'display_name', $author_id );
-    $author_email = get_the_author_meta( 'user_email', $author_id );
-    $author_phone = get_user_meta($author_id, 'phone', true);
-    $author_bio = get_user_meta($author_id, 'bio', true);
-    $author_alamat = get_user_meta($author_id, 'alamat', true);
-    $avatar_url = get_user_meta($author_id, 'avatar', true);
+
+    // 2) Tentukan author_id: atribut -> dari post -> dari author archive query -> kosong
+    $author_id = intval($atribut['author_id']);
+    if (!$author_id && $post_id) {
+        $author_id = intval(get_post_field('post_author', $post_id));
+    }
+    if (!$author_id) {
+        // coba ambil dari queried object (page author archive)
+        $qo = get_queried_object();
+        if ($qo && isset($qo->ID)) { // untuk WP_User di author archive
+            $author_id = intval($qo->ID);
+        } else {
+            // kadang get_query_var('author') menyimpan ID author
+            $q_author = intval(get_query_var('author'));
+            if ($q_author) {
+                $author_id = $q_author;
+            }
+        }
+    }
+
+    // Jika tetap tidak ada author_id, hentikan dan beri output kosong atau pesan aman
+    if (!$author_id) {
+        return '<div class="alert alert-danger">Author not found.</div>';
+    }
+
+    // Pastikan user ada
     $user_info = get_userdata($author_id);
-    $user_registered = $user_info->user_registered;
-    $lastlogin = get_user_meta($author_id, 'lastlogin', true);
-    $html = '';
-    $html .= '<div class="text-center border bg-light">';
-        $html .= '<div class="p-2 bg-color-theme text-white fs-6">Detail Penjual</div>';
-        $html .= '<div class="py-3">';
-            if($avatar_url){
-                $html .= '<img class="foto-profil-penjual" src="'.$avatar_url.'" />';
-            } else {
-                $html .= '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="text-black-50 p-4 bi bi-image" viewBox="0 0 16 16"><path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/><path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1z"/></svg>';
-            }
-        $html .= '</div>';
-        $html .= '<div class="border-top text-dark bg-muted p-3">';
-            $html .= '<div class="fw-bold mb-2"><a class="text-dark" href="'.get_author_posts_url($author_id).'" title="'.$author_name.'">'.$author_name.'</a></div>';
-            $html .= $author_bio;
-            if($author_alamat){
-                $html .= '<p class="border-top pt-2 mt-2 mb-0"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-door me-1" viewBox="0 0 16 16"> <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z"/> </svg> '.$author_alamat.'</p>';
-            }
-            if($user_registered){
-                $tgl = date('d/m/Y', strtotime($user_registered));
-                $html .= '<p class="border-top pt-2 mt-2 mb-0"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar4-event me-1" viewBox="0 0 16 16"> <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M2 2a1 1 0 0 0-1 1v1h14V3a1 1 0 0 0-1-1zm13 3H1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1z"/> <path d="M11 7.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5z"/> </svg> Sejak '.$tgl.'</p>';
-            }
-            if($lastlogin){
-                $tgllogin = human_time_diff(strtotime($lastlogin), strtotime(date('Y-m-d H:i:s')));
-                $html .= '<p class="border-top pt-2 mt-2 mb-0"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock me-1" viewBox="0 0 16 16"> <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/> <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/> </svg> Aktif ' . $tgllogin . ' lalu</p>';
-            }
-            if($author_phone){
-                $phone_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-telephone me-1 align-middle" viewBox="0 0 16 16"> <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.68.68 0 0 0 .178.643l2.457 2.457a.68.68 0 0 0 .644.178l2.189-.547a1.75 1.75 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877z"/> </svg>';
-                $html .= '<a href="tel:'.$author_phone.'" class="mt-2 w-100 btn-sm btn btn-outline-dark">'.$phone_icon.' Telepon</a>';
-            }
-            $email_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope me-1 align-middle" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z"/></svg>';
-            $html .= '<a href="mailto:'.$author_email.'?subject='.get_the_title($post_id).'&body='.urlencode(get_the_permalink($post_id)).'" class="mt-2 w-100 btn-sm btn btn-outline-dark">'.$email_icon.' Email</a>';
-        $html .= '</div>';
+    if (!$user_info) {
+        return '<div class="alert alert-danger">User not found.</div>';
+    }
+
+    // Ambil data user dengan aman
+    $author_name   = $user_info->display_name ?? '';
+    $author_email  = $user_info->user_email ?? '';
+    $author_phone  = get_user_meta($author_id, 'phone', true);
+    $author_bio    = get_user_meta($author_id, 'bio', true);
+    $author_alamat = get_user_meta($author_id, 'alamat', true);
+    $avatar_url    = get_user_meta($author_id, 'avatar', true);
+    $user_registered = $user_info->user_registered ?? '';
+    $lastlogin     = get_user_meta($author_id, 'lastlogin', true);
+
+    $html = '<div class="velocity-info-penjual text-center text-md-start">';
+    $html .= '<div class="row align-items-center">';
+
+    // Kolom 1: Foto
+    $html .= '<div class="col-sm-3 col-md-2 text-center">';
+    if ($avatar_url) {
+        $html .= '<img class="img-fluid rounded-circle" width="100" height="100" src="' . esc_url($avatar_url) . '" alt="' . esc_attr($author_name) . '">';
+    } else {
+        $html .= '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="text-black-50 bi bi-image" viewBox="0 0 16 16"><path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/><path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2z"/></svg>';
+    }
     $html .= '</div>';
+
+    // Kolom 2: Info penjual
+    $html .= '<div class="col-sm-6 col-md-7 my-sm-0 my-2">';
+    $html .= '<div class="fw-bold mb-2 fs-6 text-uppercase"><a class="text-dark" href="' . get_author_posts_url($author_id) . '" title="' . esc_attr($author_name) . '">' . esc_html($author_name) . '</a></div>';
+    $html .= wpautop($author_bio);
+
+    if ($author_alamat) {
+        $html .= '<p class="mb-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-door me-1" viewBox="0 0 16 16"> <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z"/> </svg>' . esc_html($author_alamat) . '</p>';
+    }
+
+    if ($user_registered) {
+        $html .= '<p class="mb-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar2-date me-1" viewBox="0 0 16 16"> <path d="M6.445 12.688V7.354h-.633A13 13 0 0 0 4.5 8.16v.695c.375-.257.969-.62 1.258-.777h.012v4.61zm1.188-1.305c.047.64.594 1.406 1.703 1.406 1.258 0 2-1.066 2-2.871 0-1.934-.781-2.668-1.953-2.668-.926 0-1.797.672-1.797 1.809 0 1.16.824 1.77 1.676 1.77.746 0 1.23-.376 1.383-.79h.027c-.004 1.316-.461 2.164-1.305 2.164-.664 0-1.008-.45-1.05-.82zm2.953-2.317c0 .696-.559 1.18-1.184 1.18-.601 0-1.144-.383-1.144-1.2 0-.823.582-1.21 1.168-1.21.633 0 1.16.398 1.16 1.23"/> <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M2 2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z"/> <path d="M2.5 4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H3a.5.5 0 0 1-.5-.5z"/> </svg>Sejak ' . date('d/m/Y', strtotime($user_registered)) . '</p>';
+    }
+
+    if ($lastlogin) {
+        $diff = human_time_diff(strtotime($lastlogin), current_time('timestamp'));
+        $html .= '<p class="mb-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock me-1" viewBox="0 0 16 16"> <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/> <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/> </svg> Aktif ' . $diff . ' lalu</p>';
+    }
+    $html .= '</div>';
+
+    // Kolom 3: Kontak
+    $html .= '<div class="col-md-3">';
+    if ($author_phone) {
+        $html .= '<a href="tel:' . esc_attr($author_phone) . '" class="btn btn-md btn-outline-dark w-100 mb-2 py-2"><i class="bi bi-telephone me-1"></i>Telepon</a>';
+    }
+
+    $html .= '<a href="mailto:' . esc_attr($author_email) . '?subject=' . esc_attr(get_the_title($post_id)) . '&body=' . esc_url(get_the_permalink($post_id)) . '" class="btn btn-md btn-outline-dark w-100 py-2"><i class="bi bi-envelope me-1"></i>Email</a>';
+    $html .= '</div>';
+
+    $html .= '</div>'; // .row
+    $html .= '</div>'; // .velocity-info-penjual
+
     return $html;
 });
 
@@ -802,3 +847,4 @@ function tanda_iklan_premium($atts){
     return '';
 }
 add_shortcode('tanda-iklan-premium', 'tanda_iklan_premium');
+
