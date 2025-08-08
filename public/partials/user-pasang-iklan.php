@@ -53,13 +53,13 @@ $idpost     = isset($_GET['id'])?$_GET['id']:'';
 
         /* tambahan */
 
-        'jenis' => [
+        'tipe' => [
             'type'      => 'select',
-            'title'     => 'Jenis',
+            'title'     => 'Tipe',
             'required'  => true,
             'options'    => [
-                'jual' => 'Dijual',
-                'sewa' => 'Disewakan',
+                'Dijual' => 'Dijual',
+                'Disewakan' => 'Disewakan',
             ],
         ],
         'luastanah' => [
@@ -154,4 +154,5 @@ $idpost     = isset($_GET['id'])?$_GET['id']:'';
             echo $form->formPost($args,$action,$metakey);
         echo '</div>';
     echo '</div>';
+
 
