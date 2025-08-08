@@ -4,7 +4,6 @@
  *
  * Learn more: http://codex.wordpress.org/Template_Hierarchy
  *
- * @package velocity toko
  */
 
 // Exit if accessed directly.
@@ -71,12 +70,12 @@ function velocity_search_custom_query( $query ) {
             );
         }
 
-        // jenis (post meta)
-        $jenis = isset($_GET['jns']) && $_GET['jns'] !== '' ? $_GET['jns'] : '';
-        if ($jenis) {
+        // tipe (post meta)
+        $tipe = isset($_GET['tipe']) && $_GET['tipe'] !== '' ? $_GET['tipe'] : '';
+        if ($tipe) {
             $metaquery[] = array(
-                'key'     => 'jenis',
-                'value'   => $jenis,
+                'key'     => 'tipe',
+                'value'   => $tipe,
                 'compare' => '=',
             );
         }
