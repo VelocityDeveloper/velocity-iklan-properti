@@ -7,15 +7,15 @@
     global $post;
     $s          = isset($_GET['s'])?$_GET['s']:'';
     $listshort  = isset($_GET['short'])?$_GET['short']:'';  
-    $jenis      = isset($_GET['jenis'])?$_GET['jenis']:'';
+    $jenis      = isset($_GET['jns'])?$_GET['jns']:'';
     $kamar      = isset($_GET['kamar'])?$_GET['kamar']:'';
     $minprice   = isset($_GET['minprice'])?$_GET['minprice']:'';
     $maxprice   = isset($_GET['maxprice'])?$_GET['maxprice']:'';
 	
     $category = get_queried_object();
     $cat = is_a($category, 'WP_Term') ? $category->term_id : '';
-    $listkategori = isset($_GET['cat']) ? $_GET['cat'] : $cat;
-    $listlokasi = isset($_GET['lokasi']) ? $_GET['lokasi'] : '';
+    $listkategori = isset($_GET['kat']) ? $_GET['kat'] : $cat;
+    $listlokasi = isset($_GET['lok']) ? $_GET['lok'] : '';
 
     $kategori_terms = get_terms(array(
         'taxonomy' => 'kategori',
@@ -26,7 +26,6 @@
         'taxonomy' => 'lokasi',
         'hide_empty' => false,
     ));
-
     ?>
     <div class="card">
         <div class="card-header bg-white text-dark fs-5 fw-bold">
@@ -72,10 +71,10 @@
                 </div>
                 <div class="form-group mb-3">
                     <label class="text-colortheme fw-bold d-block mb-1">Berdasarkan Kategori</label>
-                    <select class="form-control" name="cat">
+                    <select class="form-control" name="kat">
                         <option value="">Semua Kategori</option>
                         <?php foreach($kategori_terms as $kat): ?>
-                            <option value="<?php echo esc_attr($kat->term_id); ?>" <?php selected($listkategori, $kat->term_id); ?>>
+                            <option value="<?php echo esc_attr($kat->term_id ); ?>" <?php selected($listkategori, $kat->term_id ); ?>>
                                 <?php echo esc_html($kat->name); ?>
                             </option>
                         <?php endforeach; ?>
@@ -84,7 +83,7 @@
 
                 <div class="form-group mb-3">
                     <label class="text-colortheme fw-bold d-block mb-1">Berdasarkan Lokasi</label>
-                    <select class="form-control" name="lokasi">
+                    <select class="form-control" name="lok">
                         <option value="">Semua Lokasi</option>
                         <?php foreach($lokasi_terms as $lok): ?>
                             <option value="<?php echo esc_attr($lok->term_id); ?>" <?php selected($listlokasi, $lok->term_id); ?>>
@@ -95,7 +94,7 @@
                 </div>
                 <div class="form-group mb-3">
                     <label class="text-colortheme fw-bold d-block mb-1">Jenis Property</label>
-					<select class="form-control" name="jenis">
+					<select class="form-control" name="jns">
 						<option value="">Semua Jenis</option>
                     <?php 
                     $jenisargs = array(
