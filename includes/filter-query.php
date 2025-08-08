@@ -72,7 +72,7 @@ function velocity_search_custom_query( $query ) {
         }
 
         // jenis (post meta)
-        $jenis = isset($_GET['jenis']) && $_GET['jenis'] !== '' ? $_GET['jenis'] : '';
+        $jenis = isset($_GET['jns']) && $_GET['jns'] !== '' ? $_GET['jns'] : '';
         if ($jenis) {
             $metaquery[] = array(
                 'key'     => 'jenis',
@@ -93,7 +93,7 @@ function velocity_search_custom_query( $query ) {
         $taxquery = array();
 
         // kategori (custom taxonomy)
-        $kategori = isset($_GET['cat']) ? $_GET['cat'] : '';
+        $kategori = isset($_GET['kat']) ? $_GET['kat'] : '';
         if (!empty($kategori)) {
             $taxquery[] = array(
                 'taxonomy' => 'kategori',
@@ -103,7 +103,7 @@ function velocity_search_custom_query( $query ) {
         }
 
         // lokasi (custom taxonomy)
-        $lokasi = isset($_GET['lokasi']) ? $_GET['lokasi'] : '';
+       $lokasi = isset($_GET['lok']) ? $_GET['lok'] : '';
         if (!empty($lokasi)) {
             $taxquery[] = array(
                 'taxonomy' => 'lokasi',
@@ -119,6 +119,9 @@ function velocity_search_custom_query( $query ) {
         if (!empty($taxquery)) {
             $query->set('tax_query', $taxquery);
         }
+
+        $query->set('post_type', 'iklan');
+
     }
 }
 add_filter('pre_get_posts', 'velocity_search_custom_query');
