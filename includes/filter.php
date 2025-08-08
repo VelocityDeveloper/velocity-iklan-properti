@@ -7,7 +7,7 @@
     global $post;
     $s          = isset($_GET['s'])?$_GET['s']:'';
     $listshort  = isset($_GET['short'])?$_GET['short']:'';  
-    $jenis      = isset($_GET['jns'])?$_GET['jns']:'';
+    $tipe       = isset($_GET['tipe'])?$_GET['tipe']:'';
     $kamar      = isset($_GET['kamar'])?$_GET['kamar']:'';
     $minprice   = isset($_GET['minprice'])?$_GET['minprice']:'';
     $maxprice   = isset($_GET['maxprice'])?$_GET['maxprice']:'';
@@ -93,16 +93,13 @@
                     </select>
                 </div>
                 <div class="form-group mb-3">
-                    <label class="text-colortheme fw-bold d-block mb-1">Jenis Property</label>
-					<select class="form-control" name="jns">
-						<option value="">Semua Jenis</option>
+                    <label class="text-colortheme fw-bold d-block mb-1">Tipe</label>
+					<select class="form-control" name="tipe">
+						<option value="">Semua Tipe</option>
                     <?php 
-                    $jenisargs = array(
-                        'Dijual'   => 'jual', 
-                        'Disewakan'   => 'sewa', 
-                    );
-                    foreach($jenisargs as $jns => $jns_slug){ ?>
-						<option value="<?php echo $jns_slug; ?>" <?php if($jns_slug == $jenis){echo 'selected';}; ?>><?php echo $jns; ?></option>
+                    $tipe_args = array('Dijual','Disewakan');
+                    foreach($tipe_args as $tipe_value){ ?>
+						<option value="<?php echo $tipe_value; ?>" <?php if($tipe_value == $tipe){echo 'selected';}; ?>><?php echo $tipe_value; ?></option>
                     <?php } ?>
                     </select>
                 </div>
