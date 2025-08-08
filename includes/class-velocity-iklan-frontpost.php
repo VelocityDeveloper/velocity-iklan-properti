@@ -202,7 +202,7 @@ class Frontpost {
         } else if(isset($_POST['inpudata']) && $antispam==false) {
             echo '<div class="alert alert-danger">Please verify Antispam</div>';
         }
-        
+
         echo '<form name="input" method="POST" class="frontpost" id="formPost" action="" enctype="multipart/form-data">';
         
             echo '<input type="hidden" id="post_author" value="'.$post_author.'" name="post_author">';
@@ -222,7 +222,7 @@ class Frontpost {
 				
 				$nodeid 		= uniqid();
 				$cloneable		= (isset($fields['clone']) && $fields['clone']==true)?'cloneable':'';
-				$placeholder	= (isset($fields['placeholder']))?$fields['placeholder']:$fields['title'];
+				$placeholder	= (isset($fields['placeholder']))?$fields['placeholder']:'';
         	    
         		echo '<div class="form-group mb-3 fields-'.$idmeta.' fields-'.$nodeid.' '.$cloneable.'" data-node="'.$nodeid.'">';
 
@@ -282,12 +282,12 @@ class Frontpost {
 									echo '<span class="btn btn-sm btn-info btn-clone-add" data-node="'.$nodeid.'"> <i class="fa fa-plus"></i> Add</span>';
 								echo '</div>';
 							} else {
-								echo '<input type="text" id="'.$idmeta.'" value="'.$value.'" class="form-control" name="'.$idmeta.'" placeholder="'.$fields['title'].'" '.$req.' '.$read.'>';
+								echo '<input type="text" id="'.$idmeta.'" value="'.$value.'" class="form-control" name="'.$idmeta.'" placeholder="'.$placeholder.'" '.$req.' '.$read.'>';
 							}
             			}
             			//type input number
             			if ($fields['type']=='number') {
-            				echo '<input type="number" id="'.$idmeta.'" value="'.$value.'" class="form-control w-100" name="'.$idmeta.'" placeholder="'.$fields['placeholder'].'" '.$req.' '.$read.'>';
+            				echo '<input type="number" id="'.$idmeta.'" value="'.$value.'" class="form-control w-100" name="'.$idmeta.'" placeholder="'.$placeholder.'" '.$req.' '.$read.'>';
             			}
             			//type input textarea
             			if ($fields['type']=='textarea') {
@@ -299,7 +299,7 @@ class Frontpost {
             			} 
             			//type input email
             			else if ($fields['type']=='email') {
-            				echo '<input type="email" id="'.$idmeta.'" value="'.$value.'" pattern="[^ @]*@[^ @]*" class="form-control" name="'.$idmeta.'" placeholder="'.$fields['title'].'" '.$req.' '.$read.'>';
+            				echo '<input type="email" id="'.$idmeta.'" value="'.$value.'" pattern="[^ @]*@[^ @]*" class="form-control" name="'.$idmeta.'" placeholder="'.$placeholder.'" '.$req.' '.$read.'>';
             			} 
             			//type input date
             			else if ($fields['type']=='date') {
@@ -481,18 +481,17 @@ class Frontpost {
     	    echo '<div class="text-right my-3"><button name="inpudata" type="submit" class="btn btn-info simpanUserbaru1"><i class="fa fa-floppy-o" aria-hidden="true"></i> Simpan</button></div>';
 	    echo '</form>';	
 
-		
 		wp_enqueue_script('media-upload');
 		wp_enqueue_script('thickbox');
 		wp_enqueue_style('thickbox');
 		wp_enqueue_script( 'velocityfrontpost', VELOCITY_IKLAN_PLUGIN_URL . 'public/js/frontpost.js');
-
+		
 		if(isset($args['ID']) && !empty($args['ID'])) {
 			wp_enqueue_media(array(
 				'post' => $args['ID'],
 			));
 		}
-
+		
     }
     
     ///Tampil profil
